@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+:root {
+  --font-heading: "Playfair Display", serif; /* mood titles, palette names */
+  --font-body: "DM Sans", sans-serif; /* UI, buttons, descriptions */
+}
