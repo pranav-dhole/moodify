@@ -1,14 +1,13 @@
 import { useMood } from "../context/MoodContext";
 import Choice from "./Choice";
 import Palette from "./Palette";
+import Vibes from "./Vibes";
 
 const Body = () => {
   const { selectedMood } = useMood();
 
-  console.log(selectedMood.bg_color);
-
   return (
-    <div className="max-w-2xl mx-auto my-2.5 space-y-8">
+    <div className="max-w-3xl mx-auto my-2.5 space-y-8">
       <div>
         <h5 className="font-body text-[12px] tracking-widest mb-1">
           MOOD BOARD
@@ -28,6 +27,10 @@ const Body = () => {
 
       <div>
         <Palette />
+      </div>
+
+      <div>
+        <Vibes />
       </div>
     </div>
   );
