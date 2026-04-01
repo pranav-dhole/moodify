@@ -15,9 +15,7 @@ const Palette = () => {
 
   return (
     <div>
-      <h5 className="font-body text-[12px] font-normal tracking-widest my-4">
-        PALETTE
-      </h5>
+      <h5 className="font-body text-[12px] tracking-widest my-4">PALETTE</h5>
       <div className="flex gap-2">
         {selectedPalette.color_shades.map((shade) => {
           return (
