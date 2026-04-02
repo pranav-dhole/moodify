@@ -1,6 +1,7 @@
 import { useMood } from "../context/MoodContext";
 import Choice from "./Choice";
 import Palette from "./Palette";
+import Playlist from "./Playlist";
 import Vibes from "./Vibes";
 
 const Body = () => {
@@ -31,6 +32,10 @@ const Body = () => {
 
       <div>
         <Vibes />
+      </div>
+
+      <div>
+        <Playlist />
       </div>
     </div>
   );
