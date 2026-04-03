@@ -1,7 +1,7 @@
 import { useMood } from "../context/MoodContext";
 
 const Vibes = () => {
-  const { selectedPalette, selectedMood } = useMood();
+  const { selectedPalette } = useMood();
 
   return (
     <div>
