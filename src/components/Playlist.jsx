@@ -5,17 +5,21 @@ import { getYouTubeData } from "../hooks/getYoutubeData";
 const apiKey = import.meta.env.VITE_API_KEY;
 
 const loadYoutubeApi = async () => {
-  return new Promise((resolve) => {
-    if (window.YT && window.YT.Player) {
-      resolve(window.YT);
-      return;
-    }
+  try {
+    return new Promise((resolve) => {
+      if (window.YT && window.YT.Player) {
+        resolve(window.YT);
+        return;
+      }
 
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(tag);
-    window.onYouTubeIframeAPIReady = () => resolve(window.YT);
-  });
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.body.appendChild(tag);
+      window.onYouTubeIframeAPIReady = () => resolve(window.YT);
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
 };
 
 const Playlist = () => {
@@ -32,23 +36,27 @@ const Playlist = () => {
   const playerRefId = "yt-player-div";
 
   useEffect(() => {
-    loadYoutubeApi().then((YT) => {
-      playerRef.current = new YT.Player(playerRefId, {
-        height: "1",
-        width: "1",
-        videoId: "",
-        playerVars: { autoplay: 0 },
-        events: {
-          onStateChange: (event) => {
-            const { data } = event;
-            const { PLAYING, PAUSED, ENDED } = YT?.PlayerState;
-            if (data === PLAYING) setIsPlaying(true);
-            if (data === PAUSED) setIsPlaying(false);
-            if (data === ENDED) setIsPlaying(false);
+    try {
+      loadYoutubeApi().then((YT) => {
+        playerRef.current = new YT.Player(playerRefId, {
+          height: "1",
+          width: "1",
+          videoId: "",
+          playerVars: { autoplay: 0 },
+          events: {
+            onStateChange: (event) => {
+              const { data } = event;
+              const { PLAYING, PAUSED, ENDED } = YT?.PlayerState;
+              if (data === PLAYING) setIsPlaying(true);
+              if (data === PAUSED) setIsPlaying(false);
+              if (data === ENDED) setIsPlaying(false);
+            },
           },
-        },
+        });
       });
-    });
+    } catch (err) {
+      console.error(err.message);
+    }
   }, []);
 
   useEffect(() => {
@@ -63,33 +71,43 @@ const Playlist = () => {
   }, [isPlaying]);
 
   const fetchPlaylist = async () => {
-    const res = await fetch(
-      `http://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${selectedPalette.name.toLowerCase()}&api_key=${apiKey}&format=json`,
-    );
-    const data = await res.json();
-    setSongs(data.tracks.track.slice(0, 4) || []);
+    try {
+      console.log("playlist");
+
+      const res = await fetch(
+        `http://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${selectedPalette.name.toLowerCase()}&api_key=${apiKey}&format=json`,
+      );
+      const data = await res.json();
+      setSongs(data.tracks.track.slice(0, 4) || []);
+    } catch (err) {
+      console.error(err.message);
+    }
   };
 
   const handleSongClick = async (track) => {
-    const player = playerRef.current;
-    // If it's the same song, just toggle play/pause
-    if (currentVideo.id && currentVideo.title === track.name) {
-      setIsPlaying((prev) => !prev);
-      return;
-    }
-
-    const ytData = await getYouTubeData(track.name, track.artist.name);
-    if (ytData.id && player) {
-      if (ytData.id) {
-        setCurrentVideo({
-          id: ytData.id,
-          title: track.name,
-          artist: track.artist.name,
-          thumb: ytData.thumb,
-        });
-        player.loadVideoById(ytData.id);
-        setIsPlaying(true);
+    try {
+      const player = playerRef.current;
+      // If it's the same song, just toggle play/pause
+      if (currentVideo.id && currentVideo.title === track.name) {
+        setIsPlaying((prev) => !prev);
+        return;
       }
+
+      const ytData = await getYouTubeData(track.name, track.artist.name);
+      if (ytData.id && player) {
+        if (ytData.id) {
+          setCurrentVideo({
+            id: ytData.id,
+            title: track.name,
+            artist: track.artist.name,
+            thumb: ytData.thumb,
+          });
+          player.loadVideoById(ytData.id);
+          setIsPlaying(true);
+        }
+      }
+    } catch (err) {
+      console.error(err.message);
     }
   };
 
@@ -102,7 +120,10 @@ const Playlist = () => {
   }, [selectedPalette]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
+      <h5 className="font-body text-[9px] lg:text-[12px] tracking-widest mt-4">
+        PLAYLIST
+      </h5>
       <div className="hidden">
         <div id={playerRefId} />
       </div>
@@ -113,12 +134,19 @@ const Playlist = () => {
           return (
             <div
               key={i}
-              style={{ backgroundColor: selectedPalette.color_shades[0].color }}
-              className="p-3 rounded-xl hover:brightness-95 flex justify-between items-center transition-all border border-black/5 shadow-sm"
+              style={{
+                backgroundColor: selectedPalette.color_shades[0].color,
+                boxShadow: `inset 0 0 0 1px ${selectedPalette?.color_shades[2]?.color}`,
+              }}
+              className="p-3 rounded-xl hover:brightness-96 flex justify-between items-center transition-all shadow-sm"
             >
               <div>
-                <p className="font-bold text-gray-800">{track.name}</p>
-                <p className="text-gray-500 text-xs">{track.artist.name}</p>
+                <p className="font-bold text-gray-800 text-[14px] lg:text-[16px]">
+                  {track.name}
+                </p>
+                <p className="text-gray-500 text-[10px] lg:text-xs">
+                  {track.artist.name}
+                </p>
               </div>
               <img
                 src={isThisPlaying ? pauseIcon : playIcon}
@@ -134,10 +162,11 @@ const Playlist = () => {
       {/* 2. THE MINI MEDIA PLAYER BAR */}
       {currentVideo.id && (
         <div
-          className="mt-4 p-3 rounded-2xl flex items-center justify-between shadow-lg border border-black/5"
+          className="mt-1 p-3 rounded-2xl flex items-center justify-between shadow-lg"
           style={{
             backgroundColor:
               selectedPalette.color_shades[0]?.color || "#1f2937",
+            boxShadow: `inset 0 0 0 1px ${selectedPalette?.color_shades[2]?.color}`,
           }}
         >
           <div className="flex items-center gap-3 overflow-hidden">
@@ -145,7 +174,7 @@ const Playlist = () => {
             <img
               src={currentVideo.thumb}
               alt="thumb"
-              className="w-12 h-12 rounded-lg object-cover shadow-md border border-white/10"
+              className="w-12 h-12 rounded-lg object-cover shadow-md"
             />
             <div className="truncate">
               <p className="font-bold text-sm truncate">{currentVideo.title}</p>

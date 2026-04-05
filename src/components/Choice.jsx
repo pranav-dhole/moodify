@@ -5,7 +5,7 @@ const Choice = () => {
   const { selectedMoodName, setSelectedMoodName } = useMood();
 
   return (
-    <div className="font-body text-[14px] tracking-wider font-semibold flex gap-2">
+    <div className="font-body text-[12px] lg:text-[14px] tracking-wider font-semibold flex gap-2 flex-wrap">
       {MOOD_TYPES?.map((mood) => {
         return (
           <div
@@ -20,7 +20,7 @@ const Choice = () => {
                     color: "black",
                   }
             }
-            className="ring-1 text-white px-4 py-2 rounded-3xl w-fit active:border-0 cursor-pointer select-none"
+            className="ring-1 text-white px-2.5 py-1 lg:px-4 lg:py-2 rounded-3xl w-fit active:border-0 cursor-pointer select-none"
             key={mood.id}
           >
             {mood.name}
