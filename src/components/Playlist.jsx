@@ -116,7 +116,7 @@ const Playlist = () => {
   const pauseIcon = VIBE_ICONS.pause[moodKey] || VIBE_ICONS.pause.default;
 
   useEffect(() => {
-    // fetchPlaylist();
+    fetchPlaylist();
   }, [selectedPalette]);
 
   return (
