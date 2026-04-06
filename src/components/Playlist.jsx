@@ -72,10 +72,8 @@ const Playlist = () => {
 
   const fetchPlaylist = async () => {
     try {
-      console.log("playlist");
-
       const res = await fetch(
-        `http://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${selectedPalette.name.toLowerCase()}&api_key=${apiKey}&format=json`,
+        `https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag=${selectedPalette.name.toLowerCase()}&api_key=${apiKey}&format=json`,
       );
       const data = await res.json();
       setSongs(data.tracks.track.slice(0, 4) || []);
