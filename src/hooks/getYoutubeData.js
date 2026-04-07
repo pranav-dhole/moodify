@@ -2,8 +2,6 @@ const youtubeKey = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 export const getYouTubeData = async (trackName, artistName) => {
   try {
-    console.log("youtube");
-
     const query = encodeURIComponent(
       `${trackName} ${artistName} official audio`,
     );
