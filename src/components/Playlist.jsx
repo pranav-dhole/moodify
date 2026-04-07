@@ -46,10 +46,14 @@ const Playlist = () => {
           events: {
             onStateChange: (event) => {
               const { data } = event;
-              const { PLAYING, PAUSED, ENDED } = YT?.PlayerState;
-              if (data === PLAYING) setIsPlaying(true);
-              if (data === PAUSED) setIsPlaying(false);
-              if (data === ENDED) setIsPlaying(false);
+              const YT_STATE = window.YT.PlayerState;
+              if (data === YT_STATE.PLAYING) {
+                setIsPlaying(true);
+              }
+
+              if (data === YT_STATE.PAUSED || data === YT_STATE.ENDED) {
+                setIsPlaying(false);
+              }
             },
           },
         });
@@ -58,17 +62,6 @@ const Playlist = () => {
       console.error(err.message);
     }
   }, []);
-
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player || !currentVideo.id) return;
-
-    if (isPlaying) {
-      player.playVideo?.();
-    } else {
-      player.pauseVideo?.();
-    }
-  }, [isPlaying]);
 
   const fetchPlaylist = async () => {
     try {
@@ -85,9 +78,17 @@ const Playlist = () => {
   const handleSongClick = async (track) => {
     try {
       const player = playerRef.current;
+      if (!player) return;
+
       // If it's the same song, just toggle play/pause
       if (currentVideo.id && currentVideo.title === track.name) {
-        setIsPlaying((prev) => !prev);
+        const playerState = player.getPlayerState();
+        if (playerState === 1 || playerState === 3) {
+          player.pauseVideo();
+        } else {
+          player.playVideo();
+        }
+
         return;
       }
 
@@ -101,7 +102,6 @@ const Playlist = () => {
             thumb: ytData.thumb,
           });
           player.loadVideoById(ytData.id);
-          setIsPlaying(true);
         }
       }
     } catch (err) {
@@ -184,7 +184,12 @@ const Playlist = () => {
 
           {/* Toggle Button on the right */}
           <button
-            onClick={() => setIsPlaying((prev) => !prev)}
+            onClick={() =>
+              handleSongClick({
+                name: currentVideo.title,
+                artist: { name: currentVideo.artist },
+              })
+            }
             className="shrink-0 ml-2 hover:scale-110 active:scale-95 transition-transform"
           >
             <img
